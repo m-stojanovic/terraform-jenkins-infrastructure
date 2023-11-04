@@ -1,0 +1,35 @@
+
+global:
+  logLevel: info
+  splunk:
+    hec:
+      host: http-inputs.devops.splunkcloud.com
+      port: 443
+      token: xxxxx
+      insecureSSL: false
+  kubernetes:
+    clusterName: "jenkins"
+
+splunk-kubernetes-logging:
+  enabled: true
+  splunk:
+    hec:
+      indexName: k8s-logs
+  fluentd:
+    path: /var/log/containers/*.log
+    exclude_path:
+    - /var/log/containers/splunk*.log
+    - /var/log/containers/*kube-system*
+
+splunk-kubernetes-objects:
+  enabled: true
+  splunk:
+    hec:
+      indexName: k8s-logs
+
+splunk-kubernetes-metrics:
+  enabled: true
+  splunk:
+    hec:
+      token: xxxx
+      indexName: k8s-meta

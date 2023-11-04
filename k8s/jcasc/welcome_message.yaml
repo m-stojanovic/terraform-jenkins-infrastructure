@@ -1,0 +1,2 @@
+jenkins:
+  systemMessage: Welcome to DevOps CI\CD server. This Jenkins is managed "as code".

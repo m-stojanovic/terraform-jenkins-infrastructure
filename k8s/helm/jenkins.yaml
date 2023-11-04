@@ -1,0 +1,56 @@
+persistence:
+  enabled: true
+  existingClaim: ${volume}
+
+controller:
+  image: ${image_name}
+  tag: ${image_tag}
+  imagePullPolicy: IfNotPresent
+
+  # If the volume has a lot of files then setting volume ownership could be slow, see https://github.com/kubernetes/kubernetes/issues/69699
+  podSecurityContextOverride:
+    runAsUser: 1000
+    runAsNonRoot: true
+    supplementalGroups: [1000]
+    fsGroupChangePolicy: "OnRootMismatch"
+
+  installPlugins: []
+  installLatestPlugins: false
+  initializeOnce: true
+
+  ingress:
+    enabled: false
+
+  serviceType: ClusterIP
+
+  agentListenerServiceType: NodePort
+  agentListenerNodePort: ${agent_port}
+
+  ingress:
+    enabled: true
+    paths:
+    - backend:
+        service:
+          name:  >-
+            {{ template "jenkins.fullname" . }}
+          port:
+            number: 8080
+      pathType: ImplementationSpecific
+    apiVersion: networking.k8s.io/v1
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/preserve-trailing-slash: "true"
+    hostName: ${hostname}
+
+  JCasC:
+    defaultConfig: false
+  hostNetworking: false
+  resources:
+    requests: {cpu: "50m",   memory: "256Mi"}
+    limits:   {cpu: "4000m", memory: "14144Mi"}
+
+  probes:
+    startupProbe: {periodSeconds: 15, timeoutSeconds: 5, failureThreshold: 12, httpGet: &htg {path: '{{ default "" .Values.controller.jenkinsUriPrefix }}/login', port: 'http'}}
+    livenessProbe: {periodSeconds: 15, timeoutSeconds: 5, failureThreshold: 10, httpGet: *htg}
+    readinessProbe: {periodSeconds: 15, timeoutSeconds: 5, failureThreshold: 5, httpGet: *htg}

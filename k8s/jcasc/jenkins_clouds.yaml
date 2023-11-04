@@ -1,0 +1,1194 @@
+jenkins:
+  clouds:
+  - ecs:
+      cluster: "arn:aws:ecs:eu-west-1:xxxx:cluster/jenkins-slave-cluster"
+      credentialsId: "aws_creds"
+      tunnel: >-
+      jenkinsUrl: "https://${jenkins_host}/"
+      name: "jenkins-slaves"
+      regionName: "eu-west-1"
+      templates:
+      - assignPublicIp: false
+        cpu: 512
+        executionRole: >-
+        securityGroups: >-
+        subnets: >-
+        taskrole: >-
+        image: "jenkinsci/jnlp-slave"
+        label: "ecs"
+        launchType: "EC2"
+        logDriver: "awslogs"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-ecs-slave-jnlp"
+        memory: 512
+        memoryReservation: 0
+        networkMode: "default"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        sharedMemorySize: 0
+        templateName: "jenkins-ecs-slave-jnlp"
+        uniqueRemoteFSRoot: false
+  - ecs:
+      cluster: "arn:aws:ecs:eu-west-1:xxxx:cluster/jenkins-slaves-fargate"
+      credentialsId: "aws_creds"
+      tunnel: >-
+      jenkinsUrl: "https://${jenkins_host}/"
+      name: "jenkins-slaves_fargate"
+      regionName: "eu-west-1"
+      slaveTimeoutInSeconds: 300
+      templates:
+      - assignPublicIp: false
+        cpu: 1024
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform:latest"
+        label: "terraform"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-terraform"
+        memory: 0
+        memoryReservation: 4096
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-terraform"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-sqlplus-base11:latest"
+        label: "sql"
+        launchType: "FARGATE"
+        logDriver: "awslogs"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-sqlplus"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        - containerPort: 1521
+          hostPort: 1521
+          protocol: "tcp"
+        - containerPort: 5672
+          hostPort: 5672
+          protocol: "tcp"
+        - containerPort: 5439
+          hostPort: 5439
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-sqlplus"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 256
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-pssh:latest"
+        label: "pssh"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-pssh"
+        memory: 0
+        memoryReservation: 1024
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-pssh"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        securityGroups: >-
+        subnets: >-
+        taskrole: >-
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-dwh-base11"
+        label: "dwh"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-dwh"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        - containerPort: 8088
+          hostPort: 8088
+          protocol: "tcp"
+        - containerPort: 5439
+          hostPort: 5439
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-dwh"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        securityGroups: >-
+        subnets: >-
+        taskrole: >-
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-maven-base11"
+        label: "maven"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-maven"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-maven"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-sbt-base11:latest"
+        label: "sbt"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-sbt"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-sbt"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 256
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        securityGroups: >-
+        subnets: >-
+        taskrole: >-
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-deploy11"
+        label: "deploy"
+        launchType: "FARGATE"
+        logDriver: "awslogs"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-deploy"
+        memory: 0
+        memoryReservation: 1024
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-deploy"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        securityGroups: >-
+        subnets: >-
+        taskrole: >-
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-node12-base11"
+        label: "node"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-node12"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-node12"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 256
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        securityGroups: >-
+        subnets: >-
+        taskrole: >-
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-deploy11"
+        label: "slave"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-jnlp-slave-default"
+        memory: 0
+        memoryReservation: 1024
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-jnlp-slave-default"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-selenium-base11:latest"
+        label: "selenium"
+        launchType: "FARGATE"
+        logDriver: "awslogs"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "selenium"
+        memory: 8192
+        memoryReservation: 0
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        - containerPort: 9000
+          hostPort: 9000
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "selenium"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-node12-base11"
+        label: "node12"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-node12"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-node12"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-node18-base11"
+        label: "node18"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-node18-base11"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-node18-base11"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 1024
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform12:latest"
+        label: "terraform12"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-terraform12"
+        memory: 0
+        memoryReservation: 4096
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-terraform12"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 256
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-jnlp-slave-w-terraform12u31:latest"
+        label: "terraform12u31"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-terraform12"
+        memory: 0
+        memoryReservation: 1024
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-terraform1231"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-maven-11-base11:latest"
+        label: "maven-11"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-maven-11"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-maven-11"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 1024
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform1:latest"
+        label: "terraform1"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-terraform1"
+        memory: 0
+        memoryReservation: 4096
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-terraform1"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 256
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform-ubuntu:latest"
+        label: "terraform-ubuntu"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-terraform-ubuntu"
+        memory: 0
+        memoryReservation: 1024
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-terraform-ubuntu"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-maven-17-base11:latest"
+        label: "maven-17"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-maven-17"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-maven-17"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 2048
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-python-3-9-base11:latest"
+        label: "python-3-9"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-python-3-9"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-python-3-9"
+        uniqueRemoteFSRoot: false
+      - assignPublicIp: false
+        cpu: 4096
+        environments:
+        - { name: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        executionRole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        securityGroups: >-
+        subnets: >-
+        taskrole: >-
+        image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-maven-11-0-14"
+        label: "maven-11-0-14"
+        launchType: "FARGATE"
+        logDriverOptions:
+        - name: "awslogs-group"
+          value: "/ecs/jenkins-slaves"
+        - name: "awslogs-region"
+          value: "eu-west-1"
+        - name: "awslogs-stream-prefix"
+          value: "jenkins-agent-maven-11-0-14"
+        memory: 0
+        memoryReservation: 8192
+        networkMode: "awsvpc"
+        portMappings:
+        - containerPort: 50000
+          hostPort: 50000
+          protocol: "tcp"
+        - containerPort: 80
+          hostPort: 80
+          protocol: "tcp"
+        privileged: false
+        remoteFSRoot: "/home/jenkins"
+        securityGroups: "sg-xxxx"
+        sharedMemorySize: 0
+        subnets: "subnet-xxxx,subnet-xxxx"
+        taskrole: "arn:aws:iam::xxxx:role/JenkinsSlavesEcsTasksExecutionRole"
+        templateName: "jenkins-agent-maven-11-0-14"
+        uniqueRemoteFSRoot: false
+
+      ####################################################################################################
+      # terraform apply -target kubernetes_config_map.jcasc-blue -target kubernetes_config_map.jcasc-green
+  - amazonEC2:
+      cloudName: "jenkins-slaves_ec2_java_11"
+      credentialsId: "aws_creds"
+      region: "eu-west-1"
+      roleArn: >-
+      roleSessionName: >-
+      sshKeysCredentialsId: "jenkins-slave-ssh"
+      templates:
+      - ami: "${ami_jenkins_slave_java11}"
+        amiType:
+          unixData:
+            sshPort: "22"
+            rootCommandPrefix: >-
+            slaveCommandPrefix: >-
+            slaveCommandSuffix: >-
+        associatePublicIp: false
+        #currentSubnetId: subnet-xxxx
+        connectBySSHProcess: false
+        connectionStrategy: PRIVATE_IP
+        deleteRootOnTermination: false
+        description: "Java-11"
+        ebsOptimized: false
+        hostKeyVerificationStrategy: CHECK_NEW_SOFT
+        idleTerminationMinutes: "30"
+        labelString: "docker_ec2_java_11"
+        maxTotalUses: -1
+        minimumNumberOfInstances: 0
+        minimumNumberOfSpareInstances: 0
+        mode: EXCLUSIVE
+        monitoring: false
+        numExecutors: 2
+        remoteAdmin: "ec2-user"
+        securityGroups: "ci-devops-devops-jenkins-slaves"
+        spotConfig:
+          fallbackToOndemand: true
+          useBidPrice: false
+        stopOnTerminate: false
+        subnetId: "subnet-xxxx"
+        t2Unlimited: false
+        tags:
+        - name: "Name"
+          value: "docker_ec2_java_11"
+        - name: "Environment"
+          value: "ci"
+        customDeviceMapping: >-
+        initScript: >-
+        remoteFS: >-
+        zone: >-
+        tmpDir: >-
+        initScript: >-
+        jvmopts: >-
+        iamInstanceProfile: >-
+        type: T3aXlarge
+        #useDedicatedTenancy: false
+        useEphemeralDevices: false
+      useInstanceProfileForCredentials: false
+  - amazonEC2:
+      cloudName: "jenkins-slaves_ec2"
+      credentialsId: "aws_creds"
+      region: "eu-west-1"
+      roleArn: >-
+      roleSessionName: >-
+      sshKeysCredentialsId: "jenkins-slave-ssh"
+      templates:
+      - ami: "${ami_jenkins_slave_java11}"
+        amiType:
+          unixData:
+            sshPort: "22"
+            rootCommandPrefix: >-
+            slaveCommandPrefix: >-
+            slaveCommandSuffix: >-
+        associatePublicIp: false
+        #currentSubnetId: subnet-xxxx
+        connectBySSHProcess: false
+        connectionStrategy: PRIVATE_IP
+        deleteRootOnTermination: false
+        description: "Java"
+        ebsOptimized: false
+        hostKeyVerificationStrategy: 'OFF'
+        idleTerminationMinutes: "30"
+        labelString: "docker_ec2"
+        maxTotalUses: -1
+        minimumNumberOfInstances: 0
+        minimumNumberOfSpareInstances: 0
+        mode: NORMAL
+        monitoring: false
+        numExecutors: 5
+        remoteAdmin: "ec2-user"
+        securityGroups: "ci-devops-devops-jenkins-slaves"
+        spotConfig:
+          fallbackToOndemand: true
+          useBidPrice: false
+        stopOnTerminate: false
+        subnetId: "subnet-xxxx"
+        t2Unlimited: false
+        tags:
+        - name: "Name"
+          value: "docker_ec2"
+        - name: "Environment"
+          value: "ci"
+        customDeviceMapping: >-
+        initScript: >-
+        remoteFS: >-
+        zone: >-
+        tmpDir: >-
+        initScript: >-
+        jvmopts: >-
+        iamInstanceProfile: >-
+        type: T3aXlarge
+        #useDedicatedTenancy: false
+        useEphemeralDevices: false
+      - ami: "${ami_jenkins_slave_sbt}"
+        amiType:
+          unixData:
+            sshPort: "22"
+            rootCommandPrefix: >-
+            slaveCommandPrefix: >-
+            slaveCommandSuffix: >-
+        associatePublicIp: false
+        #currentSubnetId: subnet-xxxx
+        connectBySSHProcess: true
+        connectionStrategy: PRIVATE_IP
+        deleteRootOnTermination: false
+        description: "Pre-installed docker, maven, sbt and java"
+        ebsOptimized: false
+        hostKeyVerificationStrategy: 'OFF'
+        idleTerminationMinutes: "30"
+        labelString: "docker_sbt_ec2"
+        maxTotalUses: -1
+        minimumNumberOfInstances: 0
+        minimumNumberOfSpareInstances: 0
+        mode: NORMAL
+        monitoring: false
+        numExecutors: 1
+        remoteAdmin: "ec2-user"
+        securityGroups: "ci-devops-devops-jenkins-slaves"
+        spotConfig:
+          fallbackToOndemand: true
+          useBidPrice: false
+        stopOnTerminate: false
+        subnetId: "subnet-xxxx"
+        t2Unlimited: false
+        tags:
+        - name: "Environment"
+          value: "ci"
+        - name: "Name"
+          value: "docker_sbt_ec2"
+        customDeviceMapping: >-
+        initScript: >-
+        remoteFS: >-
+        zone: >-
+        tmpDir: >-
+        initScript: >-
+        jvmopts: >-
+        iamInstanceProfile: >-
+        type: T3aXlarge
+        #useDedicatedTenancy: false
+        useEphemeralDevices: false
+      useInstanceProfileForCredentials: false
+  - kubernetes:
+      containerCap: 64
+      containerCapStr: "64"
+      jenkinsTunnel: "jenkins-agent.${jenkins_env}.svc.cluster.local:50000"
+      jenkinsUrl: "http://jenkins.${jenkins_env}.svc.cluster.local:8080"
+      maxRequestsPerHost: 64
+      maxRequestsPerHostStr: "64"
+      name: "kubernetes"
+      namespace: "${jenkins_env}"
+      serverUrl: "https://kubernetes.default"
+      skipTlsVerify: true
+      templates:
+      - containers:
+        - alwaysPullImage: true
+          args: "cat"
+          command: "/bin/sh -c"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform1"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jenkins"
+          ttyEnabled: true
+          workingDir: "/home/jenkins/agent"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        # need to know where we are running on ( ether blue or green )
+        - envVar:
+            key: "JENKINS_PRIMARY_ENV"
+            value: "${jenkins_env}"
+        - envVar:
+            key: "JENKINS_SECOND_ENV"
+            value: "${second_env}"
+        hostNetwork: false
+        label: "k8s-deploy"
+        name: "k8s-slave-w-deploy"
+        # to avoid self kill while removing unneeded EC2
+        nodeSelector: "devops/instancegroup=system"
+        nodeUsageMode: "NORMAL"
+        yamlMergeStrategy: "override"
+        volumes: []
+      - containers:
+        - alwaysPullImage: true
+          args: "cat"
+          command: "/bin/sh -c"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform1"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jenkins"
+          ttyEnabled: true
+          workingDir: "/home/jenkins/agent"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "k8s-deploy-blue"
+        name: "k8s-slave-w-deploy-blue"
+        namespace: "blue"
+        nodeSelector: "devops/instancegroup=blue"
+        nodeUsageMode: NORMAL
+        volumes:
+        - persistentVolumeClaim:
+            claimName: "jenkins-ebs"
+            mountPath: "/newfs"
+            readOnly: false
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "cat"
+          command: "/bin/sh -c"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform1"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jenkins"
+          ttyEnabled: true
+          workingDir: "/home/jenkins/agent"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "k8s-deploy-green"
+        name: "k8s-slave-w-deploy-green"
+        namespace: "green"
+        nodeSelector: "devops/instancegroup=green"
+        nodeUsageMode: NORMAL
+        volumes:
+        - persistentVolumeClaim:
+            claimName: "jenkins-ebs"
+            mountPath: "/newfs"
+            readOnly: false
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-dwh"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "4095Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "k8s-dwh"
+        name: "k8s-slave-dwh"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-maven"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "4095Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "maven-k8s"
+        name: "k8s-slave-maven"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform12:latest"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "1024Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "terraform12-k8s"
+        name: "k8s-slave-terraform12"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-pssh:latest"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "1024Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "pssh-k8s"
+        name: "k8s-slave-pssh"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-node12"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "4095Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "node12-k8s"
+        name: "k8s-slave-node12"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-sbt:latest"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "4095Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "sbt-k8s"
+        name: "k8s-slave-sbt"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-deploy"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "agent"
+          resourceRequestMemory: "1024Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "deploy-k8s"
+        name: "k8s-slave-deploy"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform1:latest"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "1024Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "terraform1-k8s"
+        name: "k8s-slave-terraform1"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-terraform:latest"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "1024Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "terraform-k8s"
+        name: "k8s-slave-terraform"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"
+      - containers:
+        - alwaysPullImage: true
+          args: "^$${computer.jnlpmac} ^$${computer.name}"
+          command: "jenkins-slave"
+          image: "xxxx.dkr.ecr.eu-west-1.amazonaws.com/jenkins-agent-maven-11:latest"
+          livenessProbe: { failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0 }
+          name: "jnlp"
+          resourceRequestMemory: "4095Mi"
+          ttyEnabled: true
+          workingDir: "/home/jenkins"
+        envVars:
+        - envVar: { key: "DOCKER_HOST",  value: "tcp://ci-jenkins-docker-host.devdevops.com:2375" }
+        hostNetwork: false
+        label: "maven-11-k8s"
+        name: "k8s-slave-maven-11"
+        namespace: "default"
+        nodeUsageMode: NORMAL
+        slaveConnectTimeout: 210
+        slaveConnectTimeoutStr: "210"
+        yamlMergeStrategy: "override"

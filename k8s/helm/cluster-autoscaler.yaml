@@ -1,0 +1,38 @@
+autoscalingGroups:
+  - name: ${asg0}
+    maxSize: 4
+    minSize: 0
+
+awsRegion: ${aws_region}
+
+cloudProvider: aws
+
+image:
+  repository: k8s.gcr.io/autoscaling/cluster-autoscaler
+  tag: v1.21.1
+
+extraArgs:
+  #balancing-ignore-label: devops/instancegroup
+  v: 4
+  stderrthreshold: info
+  scale-down-delay-after-add: 35m
+  scale-down-unneeded-time: 20m
+
+nodeSelector:
+  devops/instancegroup: system
+
+rbac:
+  create: true
+  pspEnabled: true
+  serviceAccount:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: ${sa_role_arn}
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 600Mi
+  requests:
+    cpu: 100m
+    memory: 300Mi

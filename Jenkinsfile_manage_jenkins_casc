@@ -1,0 +1,19 @@
+properties([
+  parameters([
+             booleanParam(name: 'dryRun', defaultValue: true, description: 'Terraform plan only'),
+             string(name: 'libVersion',defaultValue: 'master',description: 'Jenkins Shared libs version'),
+            ]),
+  buildDiscarder(logRotator(
+    artifactDaysToKeepStr: '7', artifactNumToKeepStr: '5',
+    daysToKeepStr: '7',    numToKeepStr: '5'
+  )),
+]);
+
+library(
+  identifier: "test@${params.libVersion}",
+  retriever: modernSCM(
+    [$class: 'GitSCMSource', credentialsId: 'opsdev', remote: 'https://bitbucket.org/devopsdevops/jenkins_libraries.git']
+  )
+)
+
+jenkinsManageCasC()
